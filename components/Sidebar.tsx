@@ -1,12 +1,21 @@
 'use client'
 import Link from 'next/link'
 
-const NAV = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/chat', label: 'Chat de equipo' },
-  { href: '/notifications', label: 'Notificaciones' },
-  { href: '/team', label: 'Equipo' },
-]
+const NAV = [{ href: '/dashboard', label: 'Dashboard' }]
+
+const PLACEHOLDERS = ['Chat de equipo', 'Notificaciones', 'Equipo']
+
+const itemStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 11,
+  padding: '9px 10px',
+  borderRadius: 9,
+  fontSize: 13.5,
+  fontWeight: 600,
+  color: 'var(--text)',
+  textDecoration: 'none',
+} as const
 
 export default function Sidebar() {
   return (
@@ -45,24 +54,18 @@ export default function Sidebar() {
       </div>
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {NAV.map((n) => (
-          <Link
-            key={n.href}
-            href={n.href}
-            className="side-hover"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 11,
-              padding: '9px 10px',
-              borderRadius: 9,
-              fontSize: 13.5,
-              fontWeight: 600,
-              color: 'var(--text)',
-              textDecoration: 'none',
-            }}
-          >
+          <Link key={n.href} href={n.href} className="side-hover" style={itemStyle}>
             {n.label}
           </Link>
+        ))}
+        {PLACEHOLDERS.map((label) => (
+          <span
+            key={label}
+            aria-disabled="true"
+            style={{ ...itemStyle, opacity: 0.45, cursor: 'default' }}
+          >
+            {label} · próximamente
+          </span>
         ))}
       </nav>
     </aside>

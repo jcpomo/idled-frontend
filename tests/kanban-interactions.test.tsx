@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { resolveMove } from '@/components/kanban/Board'
 import type { Task } from '@/lib/types'
 

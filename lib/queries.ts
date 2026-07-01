@@ -9,7 +9,11 @@ function token(): string {
 }
 
 export function useProjects() {
-  return useQuery({ queryKey: ['projects'], queryFn: () => api.listProjects(token()) })
+  return useQuery({
+    queryKey: ['projects'],
+    queryFn: () => api.listProjects(token()),
+    enabled: Boolean(getToken()),
+  })
 }
 
 export function useCreateProject() {
@@ -24,7 +28,7 @@ export function useTasks(projectId: string) {
   return useQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => api.listTasks(token(), projectId),
-    enabled: Boolean(projectId),
+    enabled: Boolean(projectId) && Boolean(getToken()),
   })
 }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { it, expect, vi, beforeEach } from 'vitest'
 import { login, saveToken, getToken, clearToken } from '@/lib/auth'
 
 beforeEach(() => {
