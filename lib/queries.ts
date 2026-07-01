@@ -1,0 +1,47 @@
+'use client'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import * as api from '@/lib/api'
+import { getToken } from '@/lib/auth'
+import type { TaskStatus } from '@/lib/types'
+
+function token(): string {
+  return getToken() ?? ''
+}
+
+export function useProjects() {
+  return useQuery({ queryKey: ['projects'], queryFn: () => api.listProjects(token()) })
+}
+
+export function useCreateProject() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (name: string) => api.createProject(token(), name),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['projects'] }),
+  })
+}
+
+export function useTasks(projectId: string) {
+  return useQuery({
+    queryKey: ['tasks', projectId],
+    queryFn: () => api.listTasks(token(), projectId),
+    enabled: Boolean(projectId),
+  })
+}
+
+export function useCreateTask(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { title: string; status?: TaskStatus }) =>
+      api.createTask(token(), projectId, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+  })
+}
+
+export function useMoveTask(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { taskId: string; status: TaskStatus; position: number }) =>
+      api.moveTask(token(), v.taskId, v.status, v.position),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+  })
+}
