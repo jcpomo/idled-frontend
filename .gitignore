@@ -7,3 +7,6 @@
 
 # next.js generated
 next-env.d.ts
+
+# typescript incremental build info
+tsconfig.tsbuildinfo
