@@ -40,8 +40,11 @@ export const createTask = (
 export const updateTask = (
   token: string,
   taskId: string,
-  patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null },
+  patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string },
 ) => apiFetch<Task>(`/api/tasks/${taskId}`, { method: 'PATCH', body: patch, token })
+
+export const deleteTask = (token: string, taskId: string) =>
+  apiFetch<{ deleted: boolean }>(`/api/tasks/${taskId}`, { method: 'DELETE', token })
 
 export const moveTask = (token: string, taskId: string, status: TaskStatus, position: number) =>
   apiFetch<Task>(`/api/tasks/${taskId}/move`, { method: 'POST', body: { status, position }, token })

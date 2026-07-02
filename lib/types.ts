@@ -14,4 +14,5 @@ export interface Task {
   assignee: string | null
   due_date: string | null
   position: number
+  description: string | null
 }

@@ -49,3 +49,22 @@ export function useMoveTask(projectId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
   })
 }
+
+export function useUpdateTask(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: {
+      taskId: string
+      patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string }
+    }) => api.updateTask(token(), v.taskId, v.patch),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+  })
+}
+
+export function useDeleteTask(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (taskId: string) => api.deleteTask(token(), taskId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+  })
+}
