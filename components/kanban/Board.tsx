@@ -1,8 +1,10 @@
 'use client'
-import { DndContext, type DragEndEvent } from '@dnd-kit/core'
+import { useState } from 'react'
+import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { useTasks, useCreateTask, useMoveTask } from '@/lib/queries'
 import type { Task, TaskStatus } from '@/lib/types'
 import Column from './Column'
+import TaskDetailPanel from './TaskDetailPanel'
 
 export const COLUMNS: { key: TaskStatus; label: string }[] = [
   { key: 'open', label: 'OPEN' },
@@ -28,9 +30,12 @@ export default function Board({ projectId }: { projectId: string }) {
   const { data: tasks, isLoading } = useTasks(projectId)
   const create = useCreateTask(projectId)
   const move = useMoveTask(projectId)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
   if (isLoading) return <p style={{ padding: 24, color: 'var(--text)' }}>Cargando…</p>
   const byStatus = (s: TaskStatus) =>
     (tasks ?? []).filter((t: Task) => t.status === s).sort((a, b) => a.position - b.position)
+  const selectedTask = (tasks ?? []).find((t) => t.id === selectedId) ?? null
   function onDragEnd(e: DragEndEvent) {
     const over = e.over?.id ? String(e.over.id) : null
     const plan = resolveMove(String(e.active.id), over, tasks ?? [])
@@ -40,18 +45,24 @@ export default function Board({ projectId }: { projectId: string }) {
     create.mutate({ title, status })
   }
   return (
-    <DndContext onDragEnd={onDragEnd}>
-      <div style={{ display: 'flex', gap: 14, padding: 24, height: '100%', overflowX: 'auto' }}>
-        {COLUMNS.map((col) => (
-          <Column
-            key={col.key}
-            status={col.key}
-            label={col.label}
-            tasks={byStatus(col.key)}
-            onCreate={(title) => createForColumn(col.key, title)}
-          />
-        ))}
-      </div>
-    </DndContext>
+    <>
+      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+        <div style={{ display: 'flex', gap: 14, padding: 24, height: '100%', overflowX: 'auto' }}>
+          {COLUMNS.map((col) => (
+            <Column
+              key={col.key}
+              status={col.key}
+              label={col.label}
+              tasks={byStatus(col.key)}
+              onCreate={(title) => createForColumn(col.key, title)}
+              onOpen={setSelectedId}
+            />
+          ))}
+        </div>
+      </DndContext>
+      {selectedTask && (
+        <TaskDetailPanel key={selectedTask.id} task={selectedTask} projectId={projectId} onClose={() => setSelectedId(null)} />
+      )}
+    </>
   )
 }
