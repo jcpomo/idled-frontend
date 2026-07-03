@@ -44,12 +44,11 @@ export function useCreateTask(projectId: string) {
 export function useMoveTask(projectId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (v: { taskId: string; status: TaskStatus; position: number; parentId?: string }) =>
+    mutationFn: (v: { taskId: string; status: TaskStatus; position: number }) =>
       api.moveTask(token(), v.taskId, v.status, v.position),
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ['tasks', projectId] })
       qc.invalidateQueries({ queryKey: ['task', v.taskId] })
-      if (v.parentId) qc.invalidateQueries({ queryKey: ['subtasks', v.parentId] })
     },
   })
 }
