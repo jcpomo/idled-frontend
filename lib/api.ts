@@ -40,7 +40,7 @@ export const createTask = (
 export const updateTask = (
   token: string,
   taskId: string,
-  patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string },
+  patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string; status?: TaskStatus },
 ) => apiFetch<Task>(`/api/tasks/${taskId}`, { method: 'PATCH', body: patch, token })
 
 export const deleteTask = (token: string, taskId: string) =>
@@ -48,3 +48,15 @@ export const deleteTask = (token: string, taskId: string) =>
 
 export const moveTask = (token: string, taskId: string, status: TaskStatus, position: number) =>
   apiFetch<Task>(`/api/tasks/${taskId}/move`, { method: 'POST', body: { status, position }, token })
+
+export const getTask = (token: string, taskId: string) =>
+  apiFetch<Task>(`/api/tasks/${taskId}`, { token })
+
+export const listSubtasks = (token: string, taskId: string) =>
+  apiFetch<Task[]>(`/api/tasks/${taskId}/subtasks`, { token })
+
+export const createSubtask = (
+  token: string,
+  parentId: string,
+  input: { title: string; status?: TaskStatus },
+) => apiFetch<Task>(`/api/tasks/${parentId}/subtasks`, { method: 'POST', body: input, token })

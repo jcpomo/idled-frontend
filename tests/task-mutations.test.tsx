@@ -27,6 +27,6 @@ it('useDeleteTask deletes the task via the api with the token', async () => {
   vi.spyOn(auth, 'getToken').mockReturnValue('tok')
   const spy = vi.spyOn(api, 'deleteTask').mockResolvedValue({ deleted: true })
   const { result } = renderHook(() => useDeleteTask('p1'), { wrapper: wrapper() })
-  result.current.mutate('t1')
+  result.current.mutate({ taskId: 't1' })
   await waitFor(() => expect(spy).toHaveBeenCalledWith('tok', 't1'))
 })

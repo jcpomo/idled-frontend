@@ -44,9 +44,13 @@ export function useCreateTask(projectId: string) {
 export function useMoveTask(projectId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (v: { taskId: string; status: TaskStatus; position: number }) =>
+    mutationFn: (v: { taskId: string; status: TaskStatus; position: number; parentId?: string }) =>
       api.moveTask(token(), v.taskId, v.status, v.position),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['tasks', projectId] })
+      qc.invalidateQueries({ queryKey: ['task', v.taskId] })
+      if (v.parentId) qc.invalidateQueries({ queryKey: ['subtasks', v.parentId] })
+    },
   })
 }
 
@@ -55,16 +59,50 @@ export function useUpdateTask(projectId: string) {
   return useMutation({
     mutationFn: (v: {
       taskId: string
-      patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string }
+      patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string; status?: TaskStatus }
+      parentId?: string
     }) => api.updateTask(token(), v.taskId, v.patch),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['tasks', projectId] })
+      qc.invalidateQueries({ queryKey: ['task', v.taskId] })
+      if (v.parentId) qc.invalidateQueries({ queryKey: ['subtasks', v.parentId] })
+    },
   })
 }
 
 export function useDeleteTask(projectId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (taskId: string) => api.deleteTask(token(), taskId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks', projectId] }),
+    mutationFn: (v: { taskId: string; parentId?: string }) => api.deleteTask(token(), v.taskId),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['tasks', projectId] })
+      qc.invalidateQueries({ queryKey: ['task', v.taskId] })
+      if (v.parentId) qc.invalidateQueries({ queryKey: ['subtasks', v.parentId] })
+    },
+  })
+}
+
+export function useTask(taskId: string) {
+  return useQuery({
+    queryKey: ['task', taskId],
+    queryFn: () => api.getTask(token(), taskId),
+    enabled: Boolean(taskId) && Boolean(getToken()),
+  })
+}
+
+export function useSubtasks(taskId: string) {
+  return useQuery({
+    queryKey: ['subtasks', taskId],
+    queryFn: () => api.listSubtasks(token(), taskId),
+    enabled: Boolean(taskId) && Boolean(getToken()),
+  })
+}
+
+export function useCreateSubtask(parentId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { title: string; status?: TaskStatus }) =>
+      api.createSubtask(token(), parentId, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['subtasks', parentId] }),
   })
 }

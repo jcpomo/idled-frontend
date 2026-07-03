@@ -15,4 +15,5 @@ export interface Task {
   due_date: string | null
   position: number
   description: string | null
+  parent_id: string | null
 }
