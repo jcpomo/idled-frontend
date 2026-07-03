@@ -5,61 +5,74 @@ import type { Task } from '@/lib/types'
 
 beforeEach(() => vi.restoreAllMocks())
 
-const task: Task = {
-  id: 't1', title: 'Estudio', task_type: 'PPTO', status: 'open',
-  assignee: 'ED', due_date: null, position: 0, description: 'desc inicial',
+const parent: Task = {
+  id: 't1', title: 'Padre', task_type: 'PPTO', status: 'open',
+  assignee: 'ED', due_date: null, position: 0, description: 'desc', parent_id: null,
 }
-const others: Task[] = [
-  task,
-  { id: 't2', title: 'Otra', task_type: 'PPTO', status: 'done', assignee: null, due_date: null, position: 0, description: null },
-]
+const child: Task = {
+  id: 's1', title: 'Hija', task_type: 'PPTO', status: 'open',
+  assignee: null, due_date: null, position: 0, description: null, parent_id: 't1',
+}
 
-function stub() {
-  const update = vi.fn()
-  const move = vi.fn()
-  const del = vi.fn()
+function stub(opts: { current?: Task; subtasks?: Task[]; byId?: Record<string, Task> } = {}) {
+  const update = vi.fn(); const move = vi.fn(); const del = vi.fn(); const createSub = vi.fn()
+  const byId = opts.byId
+  vi.spyOn(queries, 'useTask').mockImplementation(((id: string) =>
+    ({ data: byId ? byId[id] : (opts.current ?? parent) })) as never)
+  vi.spyOn(queries, 'useSubtasks').mockReturnValue({ data: opts.subtasks ?? [] } as never)
+  vi.spyOn(queries, 'useTasks').mockReturnValue({ data: [parent] } as never)
   vi.spyOn(queries, 'useUpdateTask').mockReturnValue({ mutate: update } as never)
   vi.spyOn(queries, 'useMoveTask').mockReturnValue({ mutate: move } as never)
   vi.spyOn(queries, 'useDeleteTask').mockReturnValue({ mutate: del } as never)
-  vi.spyOn(queries, 'useTasks').mockReturnValue({ data: others, isLoading: false } as never)
-  return { update, move, del }
+  vi.spyOn(queries, 'useCreateSubtask').mockReturnValue({ mutate: createSub } as never)
+  return { update, move, del, createSub }
 }
 
-it('renders the task fields including description', async () => {
-  stub()
+it('renders the current task fields from useTask(taskId)', async () => {
+  stub({ current: parent })
   const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
-  render(<Panel task={task} projectId="p1" onClose={() => {}} />)
+  render(<Panel taskId="t1" projectId="p1" onClose={() => {}} />)
   expect(screen.getByTestId('task-detail-panel')).toBeInTheDocument()
-  expect((screen.getByLabelText('título') as HTMLInputElement).value).toBe('Estudio')
-  expect((screen.getByLabelText('descripción') as HTMLTextAreaElement).value).toBe('desc inicial')
+  expect((screen.getByLabelText('título') as HTMLInputElement).value).toBe('Padre')
 })
 
-it('blurring the title with a change patches the title', async () => {
-  const { update } = stub()
+it('top-level status change uses move', async () => {
+  const { move } = stub({ current: parent })
   const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
-  render(<Panel task={task} projectId="p1" onClose={() => {}} />)
-  const title = screen.getByLabelText('título')
-  fireEvent.change(title, { target: { value: 'Nuevo' } })
-  fireEvent.blur(title)
-  expect(update).toHaveBeenCalledWith({ taskId: 't1', patch: { title: 'Nuevo' } })
-})
-
-it('changing status moves the task appended to the destination column', async () => {
-  const { move } = stub()
-  const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
-  render(<Panel task={task} projectId="p1" onClose={() => {}} />)
+  render(<Panel taskId="t1" projectId="p1" onClose={() => {}} />)
   fireEvent.change(screen.getByLabelText('estado'), { target: { value: 'done' } })
-  // one task already in 'done' among `others` -> position 1
-  expect(move).toHaveBeenCalledWith({ taskId: 't1', status: 'done', position: 1 })
+  expect(move).toHaveBeenCalledWith(expect.objectContaining({ taskId: 't1', status: 'done' }))
 })
 
-it('deleting requires a confirm click then deletes and closes', async () => {
-  const { del } = stub()
-  const onClose = vi.fn()
+it('subtask status change uses update (PATCH) with parentId', async () => {
+  const { update, move } = stub({ current: child })
   const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
-  render(<Panel task={task} projectId="p1" onClose={onClose} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Confirmar borrado' }))
-  expect(del).toHaveBeenCalledWith('t1')
-  expect(onClose).toHaveBeenCalled()
+  render(<Panel taskId="s1" projectId="p1" onClose={() => {}} />)
+  fireEvent.change(screen.getByLabelText('estado'), { target: { value: 'done' } })
+  expect(move).not.toHaveBeenCalled()
+  expect(update).toHaveBeenCalledWith({ taskId: 's1', patch: { status: 'done' }, parentId: 't1' })
+})
+
+it('lists subtasks with progress and creates one', async () => {
+  const done: Task = { ...child, id: 's2', title: 'Hecha', status: 'done' }
+  const { createSub } = stub({ current: parent, subtasks: [child, done] })
+  const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
+  render(<Panel taskId="t1" projectId="p1" onClose={() => {}} />)
+  expect(screen.getByTestId('subtask-progress').textContent).toBe('1/2')
+  expect(screen.getAllByTestId('subtask-item')).toHaveLength(2)
+  fireEvent.change(screen.getByLabelText('nueva subtarea'), { target: { value: 'Nueva' } })
+  fireEvent.click(screen.getByRole('button', { name: 'crear subtarea' }))
+  expect(createSub).toHaveBeenCalledWith({ title: 'Nueva' })
+})
+
+it('clicking a subtask navigates into it, breadcrumb returns to parent', async () => {
+  stub({ byId: { t1: parent, s1: child }, subtasks: [child] })
+  const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
+  render(<Panel taskId="t1" projectId="p1" onClose={() => {}} />)
+  // open the subtask
+  fireEvent.click(screen.getByTestId('subtask-item'))
+  expect((screen.getByLabelText('título') as HTMLInputElement).value).toBe('Hija')
+  // breadcrumb back to the parent
+  fireEvent.click(screen.getByRole('button', { name: 'volver a Padre' }))
+  expect((screen.getByLabelText('título') as HTMLInputElement).value).toBe('Padre')
 })

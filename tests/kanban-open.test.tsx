@@ -6,7 +6,7 @@ import type { Task } from '@/lib/types'
 beforeEach(() => vi.restoreAllMocks())
 
 const tasks: Task[] = [
-  { id: 't1', title: 'Estudio viabilidad', task_type: 'PPTO', status: 'open', assignee: 'ED', due_date: null, position: 0, description: null },
+  { id: 't1', title: 'Estudio viabilidad', task_type: 'PPTO', status: 'open', assignee: 'ED', due_date: null, position: 0, description: null, parent_id: null },
 ]
 
 function stub() {
@@ -15,6 +15,9 @@ function stub() {
   vi.spyOn(queries, 'useMoveTask').mockReturnValue({ mutate: vi.fn() } as never)
   vi.spyOn(queries, 'useUpdateTask').mockReturnValue({ mutate: vi.fn() } as never)
   vi.spyOn(queries, 'useDeleteTask').mockReturnValue({ mutate: vi.fn() } as never)
+  vi.spyOn(queries, 'useTask').mockReturnValue({ data: tasks[0] } as never)
+  vi.spyOn(queries, 'useSubtasks').mockReturnValue({ data: [] } as never)
+  vi.spyOn(queries, 'useCreateSubtask').mockReturnValue({ mutate: vi.fn() } as never)
 }
 
 it('clicking a card opens the task detail panel', async () => {

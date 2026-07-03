@@ -35,7 +35,6 @@ export default function Board({ projectId }: { projectId: string }) {
   if (isLoading) return <p style={{ padding: 24, color: 'var(--text)' }}>Cargando…</p>
   const byStatus = (s: TaskStatus) =>
     (tasks ?? []).filter((t: Task) => t.status === s).sort((a, b) => a.position - b.position)
-  const selectedTask = (tasks ?? []).find((t) => t.id === selectedId) ?? null
   function onDragEnd(e: DragEndEvent) {
     const over = e.over?.id ? String(e.over.id) : null
     const plan = resolveMove(String(e.active.id), over, tasks ?? [])
@@ -60,8 +59,8 @@ export default function Board({ projectId }: { projectId: string }) {
           ))}
         </div>
       </DndContext>
-      {selectedTask && (
-        <TaskDetailPanel key={selectedTask.id} task={selectedTask} projectId={projectId} onClose={() => setSelectedId(null)} />
+      {selectedId && (
+        <TaskDetailPanel key={selectedId} taskId={selectedId} projectId={projectId} onClose={() => setSelectedId(null)} />
       )}
     </>
   )
