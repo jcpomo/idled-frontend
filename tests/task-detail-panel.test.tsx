@@ -25,6 +25,8 @@ function stub(opts: { current?: Task; subtasks?: Task[]; byId?: Record<string, T
   vi.spyOn(queries, 'useMoveTask').mockReturnValue({ mutate: move } as never)
   vi.spyOn(queries, 'useDeleteTask').mockReturnValue({ mutate: del } as never)
   vi.spyOn(queries, 'useCreateSubtask').mockReturnValue({ mutate: createSub } as never)
+  vi.spyOn(queries, 'useComments').mockReturnValue({ data: [] } as never)
+  vi.spyOn(queries, 'useCreateComment').mockReturnValue({ mutate: vi.fn() } as never)
   return { update, move, del, createSub }
 }
 

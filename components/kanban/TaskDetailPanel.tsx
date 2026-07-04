@@ -4,6 +4,7 @@ import {
   useTask, useSubtasks, useCreateSubtask, useUpdateTask, useMoveTask, useDeleteTask, useTasks,
 } from '@/lib/queries'
 import type { Task, TaskStatus } from '@/lib/types'
+import CommentsSection from './CommentsSection'
 
 const STATUSES: { value: TaskStatus; label: string }[] = [
   { value: 'open', label: 'OPEN' },
@@ -199,6 +200,8 @@ export default function TaskDetailPanel({
               style={{ padding: '6px 8px', background: 'var(--bg-5)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6 }}>+</button>
           </div>
         </div>
+
+        {current && <CommentsSection taskId={current.id} />}
       </aside>
     </>
   )
