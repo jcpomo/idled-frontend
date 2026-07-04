@@ -201,7 +201,7 @@ export default function TaskDetailPanel({
           </div>
         </div>
 
-        {current && <CommentsSection taskId={current.id} />}
+        {current && <CommentsSection key={`comments-${current.id}`} taskId={current.id} />}
       </aside>
     </>
   )

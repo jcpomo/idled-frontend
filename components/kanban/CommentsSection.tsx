@@ -39,8 +39,12 @@ function CommentItem({ comment, taskId }: { comment: TaskComment; taskId: string
           <button aria-label="editar comentario" onClick={() => { setDraft(comment.content); setEditing(true) }}
             style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, padding: 0 }}>Editar</button>
           {confirming ? (
-            <button onClick={() => del.mutate(comment.id)}
-              style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: 11, padding: 0 }}>Confirmar borrado</button>
+            <>
+              <button onClick={() => del.mutate(comment.id)}
+                style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: 11, padding: 0 }}>Confirmar borrado</button>
+              <button onClick={() => setConfirming(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', fontSize: 11, padding: 0 }}>Cancelar</button>
+            </>
           ) : (
             <button aria-label="borrar comentario" onClick={() => setConfirming(true)}
               style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: 11, padding: 0 }}>Borrar</button>
