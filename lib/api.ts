@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem } from '@/lib/types'
 
 export function apiBase(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
@@ -78,3 +78,6 @@ export const listConversations = (token: string) =>
 
 export const listMessages = (token: string, conversationId: string) =>
   apiFetch<ChatMessage[]>(`/api/conversations/${conversationId}/messages`, { token })
+
+export const listDocuments = (token: string) =>
+  apiFetch<DocumentItem[]>('/api/documentos', { token })

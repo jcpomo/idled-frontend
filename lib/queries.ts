@@ -1,6 +1,7 @@
 'use client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
+import { uploadDocument } from '@/lib/documents'
 import { getToken } from '@/lib/auth'
 import type { TaskStatus } from '@/lib/types'
 
@@ -152,5 +153,26 @@ export function useMessages(conversationId: string) {
     queryKey: ['messages', conversationId],
     queryFn: () => api.listMessages(token(), conversationId),
     enabled: Boolean(conversationId) && Boolean(getToken()),
+  })
+}
+
+export function useDocuments() {
+  return useQuery({
+    queryKey: ['documents'],
+    queryFn: () => api.listDocuments(token()),
+    enabled: Boolean(getToken()),
+    refetchInterval: (query) => {
+      const docs = query.state.data
+      const pending = (docs ?? []).some((d) => d.status === 'uploaded' || d.status === 'processing')
+      return pending ? 3000 : false
+    },
+  })
+}
+
+export function useUploadDocument() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => uploadDocument(token(), file),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
   })
 }

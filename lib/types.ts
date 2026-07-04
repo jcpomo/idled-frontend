@@ -40,3 +40,11 @@ export interface ChatMessage {
   content: string
   created_at: string
 }
+
+export interface DocumentItem {
+  id: string
+  filename: string
+  status: string
+  created_at: string
+  error: string | null
+}
