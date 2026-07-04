@@ -1,7 +1,10 @@
 'use client'
 import Link from 'next/link'
 
-const NAV = [{ href: '/dashboard', label: 'Dashboard' }]
+const NAV = [
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/assistant', label: 'Asistente IA' },
+]
 
 const PLACEHOLDERS = ['Chat de equipo', 'Notificaciones', 'Equipo']
 
