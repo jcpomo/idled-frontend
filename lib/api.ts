@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage } from '@/lib/types'
 
 export function apiBase(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
@@ -72,3 +72,9 @@ export const updateComment = (token: string, commentId: string, content: string)
 
 export const deleteComment = (token: string, commentId: string) =>
   apiFetch<{ deleted: boolean }>(`/api/comments/${commentId}`, { method: 'DELETE', token })
+
+export const listConversations = (token: string) =>
+  apiFetch<Conversation[]>('/api/conversations', { token })
+
+export const listMessages = (token: string, conversationId: string) =>
+  apiFetch<ChatMessage[]>(`/api/conversations/${conversationId}/messages`, { token })

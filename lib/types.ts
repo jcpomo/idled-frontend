@@ -28,3 +28,15 @@ export interface TaskComment {
   edited_at: string | null
   mine: boolean
 }
+
+export interface Conversation {
+  id: string
+  title: string | null
+  created_at: string
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  created_at: string
+}

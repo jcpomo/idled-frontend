@@ -138,3 +138,19 @@ export function useDeleteComment(taskId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', taskId] }),
   })
 }
+
+export function useConversations() {
+  return useQuery({
+    queryKey: ['conversations'],
+    queryFn: () => api.listConversations(token()),
+    enabled: Boolean(getToken()),
+  })
+}
+
+export function useMessages(conversationId: string) {
+  return useQuery({
+    queryKey: ['messages', conversationId],
+    queryFn: () => api.listMessages(token(), conversationId),
+    enabled: Boolean(conversationId) && Boolean(getToken()),
+  })
+}
