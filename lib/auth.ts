@@ -1,3 +1,5 @@
+import { ApiError } from '@/lib/api'
+
 const TOKEN_KEY = 'idled_token'
 
 function erpBase(): string {
@@ -28,4 +30,16 @@ export function getToken(): string | null {
 
 export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY)
+}
+
+export function logout(reason?: 'expired'): void {
+  if (typeof window === 'undefined') return
+  clearToken()
+  window.location.href = reason === 'expired' ? '/login?expired=1' : '/login'
+}
+
+export function onAuthError(error: unknown): void {
+  if (error instanceof ApiError && error.status === 401) {
+    logout('expired')
+  }
 }

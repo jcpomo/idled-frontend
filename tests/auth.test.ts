@@ -1,5 +1,6 @@
-import { it, expect, vi, beforeEach } from 'vitest'
-import { login, saveToken, getToken, clearToken } from '@/lib/auth'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { login, saveToken, getToken, clearToken, logout, onAuthError } from '@/lib/auth'
+import { ApiError } from '@/lib/api'
 
 beforeEach(() => {
   process.env.NEXT_PUBLIC_ERP_URL = 'http://erp'
@@ -28,4 +29,42 @@ it('token store roundtrip', () => {
   expect(getToken()).toBe('abc')
   clearToken()
   expect(getToken()).toBeNull()
+})
+
+describe('logout / onAuthError', () => {
+  let original: Location
+  beforeEach(() => {
+    original = window.location
+    Object.defineProperty(window, 'location', {
+      value: { href: '', search: '' }, writable: true, configurable: true,
+    })
+    localStorage.setItem('idled_token', 'tok')
+  })
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { value: original, writable: true, configurable: true })
+  })
+
+  it('logout clears the token and navigates to /login', () => {
+    logout()
+    expect(localStorage.getItem('idled_token')).toBeNull()
+    expect(window.location.href).toBe('/login')
+  })
+
+  it("logout('expired') navigates to /login?expired=1", () => {
+    logout('expired')
+    expect(window.location.href).toBe('/login?expired=1')
+  })
+
+  it('onAuthError logs out on an ApiError 401', () => {
+    onAuthError(new ApiError('x', 401))
+    expect(localStorage.getItem('idled_token')).toBeNull()
+    expect(window.location.href).toBe('/login?expired=1')
+  })
+
+  it('onAuthError ignores a non-401 ApiError and plain errors', () => {
+    onAuthError(new ApiError('x', 500))
+    onAuthError(new Error('boom'))
+    expect(localStorage.getItem('idled_token')).toBe('tok')
+    expect(window.location.href).toBe('')
+  })
 })

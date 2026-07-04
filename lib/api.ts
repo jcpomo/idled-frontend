@@ -1,5 +1,14 @@
 import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem } from '@/lib/types'
 
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
 export function apiBase(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 }
@@ -17,7 +26,7 @@ export async function apiFetch<T>(
     body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
   })
   if (!res.ok) {
-    throw new Error(`API ${res.status} on ${path}`)
+    throw new ApiError(`API ${res.status} on ${path}`, res.status)
   }
   return (await res.json()) as T
 }

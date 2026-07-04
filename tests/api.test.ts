@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { listProjects, createTask, moveTask } from '@/lib/api'
+import { listProjects, createTask, moveTask, ApiError } from '@/lib/api'
 
 beforeEach(() => {
   process.env.NEXT_PUBLIC_API_URL = 'http://backend'
@@ -32,4 +32,12 @@ it('moveTask POSTs status+position', async () => {
 it('apiFetch throws on non-ok', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404, json: async () => ({}) }))
   await expect(createTask('tok', 'p1', { title: 'x' })).rejects.toThrow()
+})
+
+it('apiFetch throws an ApiError carrying the status', async () => {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('nope', { status: 503 }))
+  const err = await createTask('tok', 'p1', { title: 'x' }).catch((e) => e)
+  expect(err).toBeInstanceOf(ApiError)
+  expect(err).toBeInstanceOf(Error)
+  expect((err as ApiError).status).toBe(503)
 })
