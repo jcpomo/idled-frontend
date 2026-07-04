@@ -4,6 +4,7 @@ import Link from 'next/link'
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/assistant', label: 'Asistente IA' },
+  { href: '/documentos', label: 'Documentos' },
 ]
 
 const PLACEHOLDERS = ['Chat de equipo', 'Notificaciones', 'Equipo']
