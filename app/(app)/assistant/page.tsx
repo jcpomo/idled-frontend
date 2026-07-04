@@ -26,11 +26,13 @@ export default function AssistantPage() {
   const { data: messages } = useMessages(selectedId ?? '')
   const [pending, setPending] = useState<{ user: string; assistant: string } | null>(null)
   const [input, setInput] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   async function send() {
     const message = input.trim()
     if (!message || pending) return
     setInput('')
+    setError(null)
     setPending({ user: message, assistant: '' })
     let convId = selectedId
     try {
@@ -39,7 +41,8 @@ export default function AssistantPage() {
         onToken: (t) => setPending((p) => (p ? { ...p, assistant: p.assistant + t } : p)),
       })
     } catch {
-      setPending((p) => (p ? { ...p, assistant: '⚠️ Error al responder' } : p))
+      setError('⚠️ Error al responder. Inténtalo de nuevo.')
+      setPending(null)
       return
     }
     if (convId) {
@@ -53,17 +56,19 @@ export default function AssistantPage() {
   return (
     <div style={{ display: 'flex', height: '100%' }}>
       <div style={{ width: 260, flex: '0 0 260px', borderRight: '1px solid var(--border)', padding: 12, overflowY: 'auto' }}>
-        <button aria-label="nueva conversación" onClick={() => { setSelectedId(null); setPending(null) }}
-          style={{ width: '100%', padding: 8, marginBottom: 10, background: 'var(--bg-5)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer' }}>
+        <button aria-label="nueva conversación" disabled={!!pending}
+          onClick={() => { setSelectedId(null); setPending(null); setError(null) }}
+          style={{ width: '100%', padding: 8, marginBottom: 10, background: 'var(--bg-5)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 8, cursor: pending ? 'default' : 'pointer', opacity: pending ? 0.5 : 1 }}>
           + Nueva
         </button>
         {(conversations ?? []).map((c) => (
-          <button key={c.id} data-testid="conversation-item"
-            onClick={() => { setSelectedId(c.id); setPending(null) }}
+          <button key={c.id} data-testid="conversation-item" disabled={!!pending}
+            onClick={() => { setSelectedId(c.id); setPending(null); setError(null) }}
             style={{
               display: 'block', width: '100%', textAlign: 'left', padding: 8, marginBottom: 4,
               background: c.id === selectedId ? 'var(--bg-3)' : 'none', color: 'var(--text)',
-              border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer',
+              border: '1px solid var(--border)', borderRadius: 8, cursor: pending ? 'default' : 'pointer',
+              opacity: pending ? 0.5 : 1,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13,
             }}>
             {c.title ?? '(sin título)'}
@@ -81,6 +86,9 @@ export default function AssistantPage() {
             </>
           )}
         </div>
+        {error && (
+          <div role="alert" style={{ marginTop: 8, fontSize: 12, color: 'var(--red)' }}>{error}</div>
+        )}
         <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
           <input aria-label="mensaje" value={input} disabled={!!pending}
             onChange={(e) => setInput(e.target.value)}
