@@ -1,4 +1,4 @@
-import { apiBase } from '@/lib/api'
+import { apiBase, ApiError } from '@/lib/api'
 
 export interface ChatMeta {
   conversation_id: string
@@ -16,7 +16,7 @@ export async function streamChat(
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ message: input.message, conversation_id: input.conversationId ?? null }),
   })
-  if (!res.ok || !res.body) throw new Error(`Chat ${res.status}`)
+  if (!res.ok || !res.body) throw new ApiError(`Chat ${res.status}`, res.status)
 
   const reader = res.body.getReader()
   const decoder = new TextDecoder()

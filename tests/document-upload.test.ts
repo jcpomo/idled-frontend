@@ -19,8 +19,11 @@ it('POSTs the file as multipart with the bearer token and no JSON content-type',
   expect((init?.body as FormData).get('file')).toBe(file)
 })
 
-it('throws on a non-ok response', async () => {
+it('throws an ApiError with the status on a non-ok response', async () => {
+  const { ApiError } = await import('@/lib/api')
   vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('nope', { status: 403 }))
   const file = new File(['x'], 'a.pdf', { type: 'application/pdf' })
-  await expect(uploadDocument('tok', file)).rejects.toThrow()
+  const err = await uploadDocument('tok', file).catch((e) => e)
+  expect(err).toBeInstanceOf(ApiError)
+  expect(err.status).toBe(403)
 })

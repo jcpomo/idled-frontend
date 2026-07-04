@@ -1,4 +1,4 @@
-import { apiBase } from '@/lib/api'
+import { apiBase, ApiError } from '@/lib/api'
 
 export async function uploadDocument(
   token: string,
@@ -11,6 +11,6 @@ export async function uploadDocument(
     headers: { Authorization: `Bearer ${token}` },
     body: form,
   })
-  if (!res.ok) throw new Error(`Upload ${res.status}`)
+  if (!res.ok) throw new ApiError(`Upload ${res.status}`, res.status)
   return (await res.json()) as { document_id: string; status: string }
 }

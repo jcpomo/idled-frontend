@@ -35,7 +35,10 @@ it('parses meta/token/done and handles a frame split across chunks', async () =>
   expect(dones).toBe(1)
 })
 
-it('throws on a non-ok response', async () => {
-  vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('nope', { status: 500 }))
-  await expect(streamChat('tok', { message: 'hi' }, {})).rejects.toThrow()
+it('throws an ApiError with the status on a non-ok response', async () => {
+  const { ApiError } = await import('@/lib/api')
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('nope', { status: 401 }))
+  const err = await streamChat('tok', { message: 'hi' }, {}).catch((e) => e)
+  expect(err).toBeInstanceOf(ApiError)
+  expect(err.status).toBe(401)
 })
