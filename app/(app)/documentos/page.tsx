@@ -10,7 +10,7 @@ const badgeColor: Record<string, string> = {
 }
 
 export default function DocumentosPage() {
-  const { data: documents } = useDocuments()
+  const { data: documents, isError } = useDocuments()
   const upload = useUploadDocument()
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
@@ -39,7 +39,9 @@ export default function DocumentosPage() {
         </button>
       </div>
       {error && <div role="alert" style={{ color: 'var(--red)', fontSize: 12, marginBottom: 12 }}>{error}</div>}
-      {list.length === 0 ? (
+      {isError ? (
+        <div role="alert" style={{ color: 'var(--red)', fontSize: 13 }}>No se pudieron cargar los documentos.</div>
+      ) : list.length === 0 ? (
         <p style={{ color: '#888' }}>Sin documentos</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
