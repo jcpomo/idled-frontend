@@ -1,6 +1,6 @@
 import type { Project, Task, TaskStatus, TaskComment } from '@/lib/types'
 
-function apiBase(): string {
+export function apiBase(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 }
 
