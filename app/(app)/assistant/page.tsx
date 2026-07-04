@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useConversations, useMessages } from '@/lib/queries'
 import { streamChat } from '@/lib/chat'
-import { getToken } from '@/lib/auth'
+import { getToken, onAuthError } from '@/lib/auth'
 
 function Bubble({ role, text }: { role: string; text: string }) {
   const mine = role === 'user'
@@ -40,7 +40,8 @@ export default function AssistantPage() {
         onMeta: (m) => { convId = m.conversation_id },
         onToken: (t) => setPending((p) => (p ? { ...p, assistant: p.assistant + t } : p)),
       })
-    } catch {
+    } catch (err) {
+      onAuthError(err)
       setError('⚠️ Error al responder. Inténtalo de nuevo.')
       setPending(null)
       return

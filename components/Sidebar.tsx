@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { logout } from '@/lib/auth'
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -72,6 +73,10 @@ export default function Sidebar() {
           </span>
         ))}
       </nav>
+      <button aria-label="cerrar sesión" onClick={() => logout()}
+        style={{ ...itemStyle, marginTop: 'auto', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', opacity: 0.8 }}>
+        Cerrar sesión
+      </button>
     </aside>
   )
 }

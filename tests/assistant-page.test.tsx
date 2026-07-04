@@ -5,6 +5,7 @@ import React from 'react'
 import * as queries from '@/lib/queries'
 import * as chat from '@/lib/chat'
 import * as auth from '@/lib/auth'
+import { ApiError } from '@/lib/api'
 import type { Conversation } from '@/lib/types'
 
 beforeEach(() => vi.restoreAllMocks())
@@ -58,4 +59,15 @@ it('sends with the typed message and no conversationId when starting fresh', asy
   fireEvent.change(screen.getByLabelText('mensaje'), { target: { value: 'hola' } })
   fireEvent.click(screen.getByLabelText('enviar'))
   expect(stream).toHaveBeenCalledWith('tok', { message: 'hola', conversationId: undefined }, expect.anything())
+})
+
+it('logs out when the stream fails with a 401', async () => {
+  const onAuthErrorSpy = vi.spyOn(auth, 'onAuthError').mockImplementation(() => {})
+  stub((() => Promise.reject(new ApiError('x', 401))) as never)
+  const { default: Page } = await import('@/app/(app)/assistant/page')
+  wrap(<Page />)
+  fireEvent.change(screen.getByLabelText('mensaje'), { target: { value: 'hola' } })
+  fireEvent.click(screen.getByLabelText('enviar'))
+  await new Promise((r) => setTimeout(r, 0))
+  expect(onAuthErrorSpy).toHaveBeenCalled()
 })
