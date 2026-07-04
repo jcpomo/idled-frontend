@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment } from '@/lib/types'
 
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
@@ -60,3 +60,15 @@ export const createSubtask = (
   parentId: string,
   input: { title: string; status?: TaskStatus },
 ) => apiFetch<Task>(`/api/tasks/${parentId}/subtasks`, { method: 'POST', body: input, token })
+
+export const listComments = (token: string, taskId: string) =>
+  apiFetch<TaskComment[]>(`/api/tasks/${taskId}/comments`, { token })
+
+export const createComment = (token: string, taskId: string, content: string) =>
+  apiFetch<TaskComment>(`/api/tasks/${taskId}/comments`, { method: 'POST', body: { content }, token })
+
+export const updateComment = (token: string, commentId: string, content: string) =>
+  apiFetch<TaskComment>(`/api/comments/${commentId}`, { method: 'PATCH', body: { content }, token })
+
+export const deleteComment = (token: string, commentId: string) =>
+  apiFetch<{ deleted: boolean }>(`/api/comments/${commentId}`, { method: 'DELETE', token })

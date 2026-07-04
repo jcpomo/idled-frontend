@@ -17,3 +17,14 @@ export interface Task {
   description: string | null
   parent_id: string | null
 }
+
+export interface TaskComment {
+  id: string
+  task_id: string
+  author_external_id: string
+  author_name: string | null
+  content: string
+  created_at: string
+  edited_at: string | null
+  mine: boolean
+}

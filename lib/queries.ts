@@ -105,3 +105,36 @@ export function useCreateSubtask(parentId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['subtasks', parentId] }),
   })
 }
+
+export function useComments(taskId: string) {
+  return useQuery({
+    queryKey: ['comments', taskId],
+    queryFn: () => api.listComments(token(), taskId),
+    enabled: Boolean(taskId) && Boolean(getToken()),
+  })
+}
+
+export function useCreateComment(taskId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (content: string) => api.createComment(token(), taskId, content),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', taskId] }),
+  })
+}
+
+export function useUpdateComment(taskId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { commentId: string; content: string }) =>
+      api.updateComment(token(), v.commentId, v.content),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', taskId] }),
+  })
+}
+
+export function useDeleteComment(taskId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (commentId: string) => api.deleteComment(token(), commentId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', taskId] }),
+  })
+}
