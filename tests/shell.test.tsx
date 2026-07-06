@@ -14,6 +14,7 @@ it('renders the sidebar nav when authenticated', async () => {
   const { default: Sidebar } = await import('@/components/Sidebar')
   render(<Sidebar />)
   expect(screen.getByText('Dashboard')).toBeInTheDocument()
+  expect(screen.queryByTestId('unread-badge')).not.toBeInTheDocument()
 })
 
 it('the logout button calls logout', async () => {
