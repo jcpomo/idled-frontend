@@ -32,5 +32,6 @@ it('labels shared projects (is_owner false)', async () => {
   const { default: Dashboard } = await import('@/app/(app)/dashboard/page')
   wrap(<Dashboard />)
   expect(await screen.findByText('Ajeno')).toBeInTheDocument()
-  expect(screen.getByText('compartido')).toBeInTheDocument()
+  // only the shared project (is_owner === false) is labelled; the owned one is not
+  expect(screen.getAllByText('compartido')).toHaveLength(1)
 })
