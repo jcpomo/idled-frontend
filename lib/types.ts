@@ -4,6 +4,18 @@ export interface Project {
   id: string
   name: string
   created_at?: string | null
+  is_owner?: boolean
+}
+
+export interface UserDir {
+  external_id: string
+  name: string | null
+}
+
+export interface Member {
+  external_id: string
+  name: string | null
+  is_owner: boolean
 }
 
 export interface Task {

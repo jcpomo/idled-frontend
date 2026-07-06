@@ -176,3 +176,35 @@ export function useUploadDocument() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
   })
 }
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: () => api.listUsers(token()),
+    enabled: Boolean(getToken()),
+  })
+}
+
+export function useMembers(projectId: string) {
+  return useQuery({
+    queryKey: ['members', projectId],
+    queryFn: () => api.listMembers(token(), projectId),
+    enabled: Boolean(projectId) && Boolean(getToken()),
+  })
+}
+
+export function useAddMember(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (externalId: string) => api.addMember(token(), projectId, externalId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['members', projectId] }),
+  })
+}
+
+export function useRemoveMember(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (externalId: string) => api.removeMember(token(), projectId, externalId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['members', projectId] }),
+  })
+}

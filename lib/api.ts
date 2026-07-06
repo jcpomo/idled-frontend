@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem, UserDir, Member } from '@/lib/types'
 
 export class ApiError extends Error {
   status: number
@@ -90,3 +90,15 @@ export const listMessages = (token: string, conversationId: string) =>
 
 export const listDocuments = (token: string) =>
   apiFetch<DocumentItem[]>('/api/documentos', { token })
+
+export const listUsers = (token: string) =>
+  apiFetch<UserDir[]>('/api/users', { token })
+
+export const listMembers = (token: string, projectId: string) =>
+  apiFetch<Member[]>(`/api/projects/${projectId}/members`, { token })
+
+export const addMember = (token: string, projectId: string, externalId: string) =>
+  apiFetch<Member[]>(`/api/projects/${projectId}/members`, { method: 'POST', body: { external_id: externalId }, token })
+
+export const removeMember = (token: string, projectId: string, externalId: string) =>
+  apiFetch<{ deleted: boolean }>(`/api/projects/${projectId}/members/${externalId}`, { method: 'DELETE', token })
