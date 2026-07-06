@@ -19,3 +19,18 @@ it('lists projects from the hook', async () => {
   wrap(<Dashboard />)
   expect(await screen.findByText('Serie X')).toBeInTheDocument()
 })
+
+it('labels shared projects (is_owner false)', async () => {
+  vi.spyOn(queries, 'useProjects').mockReturnValue({
+    data: [
+      { id: 'p1', name: 'Mío' },
+      { id: 'p2', name: 'Ajeno', is_owner: false },
+    ],
+    isLoading: false,
+  } as never)
+  vi.spyOn(queries, 'useCreateProject').mockReturnValue({ mutate: vi.fn(), isPending: false } as never)
+  const { default: Dashboard } = await import('@/app/(app)/dashboard/page')
+  wrap(<Dashboard />)
+  expect(await screen.findByText('Ajeno')).toBeInTheDocument()
+  expect(screen.getByText('compartido')).toBeInTheDocument()
+})

@@ -32,6 +32,9 @@ export default function Dashboard() {
             <Link key={p.id} href={`/project/${p.id}`}
               style={{ display: 'block', padding: 16, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text)', textDecoration: 'none' }}>
               {p.name}
+              {p.is_owner === false && (
+                <span style={{ marginLeft: 8, fontSize: 10, color: '#888' }}>compartido</span>
+              )}
             </Link>
           ))}
         </div>
