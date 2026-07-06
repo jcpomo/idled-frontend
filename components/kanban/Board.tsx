@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
-import { useTasks, useCreateTask, useMoveTask } from '@/lib/queries'
+import { useTasks, useCreateTask, useMoveTask, useMembers } from '@/lib/queries'
 import type { Task, TaskStatus } from '@/lib/types'
 import Column from './Column'
 import TaskDetailPanel from './TaskDetailPanel'
@@ -30,9 +30,12 @@ export default function Board({ projectId }: { projectId: string }) {
   const { data: tasks, isLoading } = useTasks(projectId)
   const create = useCreateTask(projectId)
   const move = useMoveTask(projectId)
+  const { data: members } = useMembers(projectId)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
   if (isLoading) return <p style={{ padding: 24, color: 'var(--text)' }}>Cargando…</p>
+  const memberNames: Record<string, string> = {}
+  for (const m of members ?? []) memberNames[m.external_id] = m.name ?? m.external_id
   const byStatus = (s: TaskStatus) =>
     (tasks ?? []).filter((t: Task) => t.status === s).sort((a, b) => a.position - b.position)
   function onDragEnd(e: DragEndEvent) {
@@ -55,6 +58,7 @@ export default function Board({ projectId }: { projectId: string }) {
               tasks={byStatus(col.key)}
               onCreate={(title) => createForColumn(col.key, title)}
               onOpen={setSelectedId}
+              memberNames={memberNames}
             />
           ))}
         </div>
