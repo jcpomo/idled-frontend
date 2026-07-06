@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import {
-  useTask, useSubtasks, useCreateSubtask, useUpdateTask, useMoveTask, useDeleteTask, useTasks,
+  useTask, useSubtasks, useCreateSubtask, useUpdateTask, useMoveTask, useDeleteTask, useTasks, useMembers,
 } from '@/lib/queries'
 import type { Task, TaskStatus } from '@/lib/types'
 import CommentsSection from './CommentsSection'
@@ -27,12 +27,12 @@ function TaskFields({
   const move = useMoveTask(projectId)
   const del = useDeleteTask(projectId)
   const { data: topTasks } = useTasks(projectId)
+  const { data: members } = useMembers(projectId)
   const parentId = task.parent_id ?? undefined
 
   const [title, setTitle] = useState(task.title)
   const [description, setDescription] = useState(task.description ?? '')
   const [taskType, setTaskType] = useState(task.task_type)
-  const [assignee, setAssignee] = useState(task.assignee ?? '')
   const [dueDate, setDueDate] = useState(task.due_date ?? '')
   const [confirming, setConfirming] = useState(false)
 
@@ -73,9 +73,17 @@ function TaskFields({
         onBlur={() => patchIfChanged('task_type', taskType, task.task_type)} style={fieldStyle} />
 
       <label htmlFor="td-assignee" style={labelStyle}>Asignado</label>
-      <input id="td-assignee" aria-label="asignado" value={assignee}
-        onChange={(e) => setAssignee(e.target.value)}
-        onBlur={() => patchIfChanged('assignee', assignee, task.assignee ?? '')} style={fieldStyle} />
+      <select id="td-assignee" aria-label="asignado" value={task.assignee ?? ''}
+        onChange={(e) => update.mutate({ taskId: task.id, patch: { assignee: e.target.value }, parentId })}
+        style={fieldStyle}>
+        <option value="">Sin asignar</option>
+        {task.assignee && !(members ?? []).some((m) => m.external_id === task.assignee) && (
+          <option value={task.assignee}>{task.assignee}</option>
+        )}
+        {(members ?? []).map((m) => (
+          <option key={m.external_id} value={m.external_id}>{m.name ?? m.external_id}</option>
+        ))}
+      </select>
 
       <label htmlFor="td-due" style={labelStyle}>Fecha</label>
       <input id="td-due" aria-label="fecha" type="date" value={dueDate}

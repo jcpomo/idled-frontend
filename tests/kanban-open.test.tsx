@@ -20,6 +20,7 @@ function stub() {
   vi.spyOn(queries, 'useCreateSubtask').mockReturnValue({ mutate: vi.fn() } as never)
   vi.spyOn(queries, 'useComments').mockReturnValue({ data: [] } as never)
   vi.spyOn(queries, 'useCreateComment').mockReturnValue({ mutate: vi.fn() } as never)
+  vi.spyOn(queries, 'useMembers').mockReturnValue({ data: [] } as never)
 }
 
 it('clicking a card opens the task detail panel', async () => {

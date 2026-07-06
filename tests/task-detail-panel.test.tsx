@@ -27,6 +27,10 @@ function stub(opts: { current?: Task; subtasks?: Task[]; byId?: Record<string, T
   vi.spyOn(queries, 'useCreateSubtask').mockReturnValue({ mutate: createSub } as never)
   vi.spyOn(queries, 'useComments').mockReturnValue({ data: [] } as never)
   vi.spyOn(queries, 'useCreateComment').mockReturnValue({ mutate: vi.fn() } as never)
+  vi.spyOn(queries, 'useMembers').mockReturnValue({ data: [
+    { external_id: 'ext-2', name: 'Bea', is_owner: false },
+    { external_id: 'owner', name: 'Dueño', is_owner: true },
+  ] } as never)
   return { update, move, del, createSub }
 }
 
@@ -65,6 +69,18 @@ it('lists subtasks with progress and creates one', async () => {
   fireEvent.change(screen.getByLabelText('nueva subtarea'), { target: { value: 'Nueva' } })
   fireEvent.click(screen.getByRole('button', { name: 'crear subtarea' }))
   expect(createSub).toHaveBeenCalledWith({ title: 'Nueva' })
+})
+
+it('assignee is a member select with unassign, members, and a legacy fallback option', async () => {
+  const { update } = stub({ current: parent })
+  const { default: Panel } = await import('@/components/kanban/TaskDetailPanel')
+  render(<Panel taskId="t1" projectId="p1" onClose={() => {}} />)
+  const select = screen.getByLabelText('asignado') as HTMLSelectElement
+  const optionValues = Array.from(select.options).map((o) => o.value)
+  expect(optionValues).toEqual(['', 'ED', 'ext-2', 'owner'])
+  expect(select.value).toBe('ED')
+  fireEvent.change(select, { target: { value: 'ext-2' } })
+  expect(update).toHaveBeenCalledWith({ taskId: 't1', patch: { assignee: 'ext-2' }, parentId: undefined })
 })
 
 it('clicking a subtask navigates into it, breadcrumb returns to parent', async () => {
