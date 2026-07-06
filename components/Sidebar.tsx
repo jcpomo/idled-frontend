@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { logout } from '@/lib/auth'
+import { useNotifications } from '@/lib/queries'
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -8,7 +9,7 @@ const NAV = [
   { href: '/documentos', label: 'Documentos' },
 ]
 
-const PLACEHOLDERS = ['Chat de equipo', 'Notificaciones', 'Equipo']
+const PLACEHOLDERS = ['Chat de equipo', 'Equipo']
 
 const itemStyle = {
   display: 'flex',
@@ -23,6 +24,8 @@ const itemStyle = {
 } as const
 
 export default function Sidebar() {
+  const { data: notifs } = useNotifications()
+  const unread = (notifs ?? []).filter((n) => !n.read).length
   return (
     <aside
       style={{
@@ -63,6 +66,15 @@ export default function Sidebar() {
             {n.label}
           </Link>
         ))}
+        <Link href="/notifications" className="side-hover" style={itemStyle}>
+          Notificaciones
+          {unread > 0 && (
+            <span data-testid="unread-badge"
+              style={{ marginLeft: 'auto', background: 'var(--accent)', color: '#000', borderRadius: 10, fontSize: 11, fontWeight: 700, padding: '1px 7px' }}>
+              {unread}
+            </span>
+          )}
+        </Link>
         {PLACEHOLDERS.map((label) => (
           <span
             key={label}
