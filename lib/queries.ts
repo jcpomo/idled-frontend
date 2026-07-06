@@ -208,3 +208,28 @@ export function useRemoveMember(projectId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['members', projectId] }),
   })
 }
+
+export function useNotifications() {
+  return useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => api.listNotifications(token()),
+    enabled: Boolean(getToken()),
+    refetchInterval: 20000,
+  })
+}
+
+export function useMarkNotificationRead() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.markNotificationRead(token(), id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+}
+
+export function useMarkAllNotificationsRead() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.markAllNotificationsRead(token()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+}

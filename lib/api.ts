@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem, UserDir, Member } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem, UserDir, Member, Notification } from '@/lib/types'
 
 export class ApiError extends Error {
   status: number
@@ -102,3 +102,12 @@ export const addMember = (token: string, projectId: string, externalId: string) 
 
 export const removeMember = (token: string, projectId: string, externalId: string) =>
   apiFetch<{ deleted: boolean }>(`/api/projects/${projectId}/members/${externalId}`, { method: 'DELETE', token })
+
+export const listNotifications = (token: string) =>
+  apiFetch<Notification[]>('/api/notifications', { token })
+
+export const markNotificationRead = (token: string, id: string) =>
+  apiFetch<{ ok: boolean }>(`/api/notifications/${id}/read`, { method: 'POST', token })
+
+export const markAllNotificationsRead = (token: string) =>
+  apiFetch<{ marked: number }>('/api/notifications/read-all', { method: 'POST', token })

@@ -60,3 +60,13 @@ export interface DocumentItem {
   created_at: string
   error: string | null
 }
+
+export interface Notification {
+  id: string
+  type: string
+  message: string
+  task_id: string | null
+  project_id: string | null
+  read: boolean
+  created_at: string
+}
