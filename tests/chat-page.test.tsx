@@ -31,6 +31,7 @@ it('disables the composer when not open', async () => {
   const { default: Page } = await import('@/app/(app)/chat/page')
   render(<Page />)
   expect(screen.getByLabelText('enviar')).toBeDisabled()
+  expect(screen.getByLabelText('mensaje')).toBeDisabled()
 })
 
 it('shows an empty state', async () => {
