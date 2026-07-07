@@ -7,9 +7,10 @@ const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/assistant', label: 'Asistente IA' },
   { href: '/documentos', label: 'Documentos' },
+  { href: '/chat', label: 'Chat de equipo' },
 ]
 
-const PLACEHOLDERS = ['Chat de equipo', 'Equipo']
+const PLACEHOLDERS = ['Equipo']
 
 const itemStyle = {
   display: 'flex',

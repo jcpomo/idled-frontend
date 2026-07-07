@@ -39,3 +39,12 @@ it('shows an unread badge and a Notificaciones link', async () => {
   expect(link).toHaveAttribute('href', '/notifications')
   expect(screen.getByTestId('unread-badge')).toHaveTextContent('2')
 })
+
+it('shows a Chat de equipo link', async () => {
+  vi.spyOn(auth, 'getToken').mockReturnValue('tok')
+  vi.spyOn(queries, 'useNotifications').mockReturnValue({ data: [] } as never)
+  const { default: Sidebar } = await import('@/components/Sidebar')
+  render(<Sidebar />)
+  const link = screen.getByRole('link', { name: 'Chat de equipo' })
+  expect(link).toHaveAttribute('href', '/chat')
+})
