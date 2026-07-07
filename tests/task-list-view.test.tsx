@@ -11,7 +11,7 @@ beforeEach(() => vi.restoreAllMocks())
 
 const task = (id: string, over: Partial<Task> = {}): Task => ({
   id, title: `T-${id}`, task_type: 'PPTO', status: 'open', assignee: null,
-  due_date: null, position: 0, description: null, parent_id: null, ...over,
+  due_date: null, start_date: null, position: 0, description: null, parent_id: null, ...over,
 })
 
 function stub(tasks: Task[], members: { external_id: string; name: string | null }[] = []) {

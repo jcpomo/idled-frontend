@@ -6,7 +6,7 @@ import type { Task } from '@/lib/types'
 beforeEach(() => vi.restoreAllMocks())
 
 const tasks: Task[] = [
-  { id: 't1', title: 'Estudio viabilidad', task_type: 'PPTO', status: 'open', assignee: 'ED', due_date: null, position: 0, description: null, parent_id: null },
+  { id: 't1', title: 'Estudio viabilidad', task_type: 'PPTO', status: 'open', assignee: 'ED', due_date: null, start_date: null, position: 0, description: null, parent_id: null },
 ]
 
 function stub() {

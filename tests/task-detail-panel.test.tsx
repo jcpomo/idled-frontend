@@ -7,11 +7,11 @@ beforeEach(() => vi.restoreAllMocks())
 
 const parent: Task = {
   id: 't1', title: 'Padre', task_type: 'PPTO', status: 'open',
-  assignee: 'ED', due_date: null, position: 0, description: 'desc', parent_id: null,
+  assignee: 'ED', due_date: null, start_date: null, position: 0, description: 'desc', parent_id: null,
 }
 const child: Task = {
   id: 's1', title: 'Hija', task_type: 'PPTO', status: 'open',
-  assignee: null, due_date: null, position: 0, description: null, parent_id: 't1',
+  assignee: null, due_date: null, start_date: null, position: 0, description: null, parent_id: 't1',
 }
 
 function stub(opts: { current?: Task; subtasks?: Task[]; byId?: Record<string, Task> } = {}) {

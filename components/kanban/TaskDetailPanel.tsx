@@ -34,6 +34,7 @@ function TaskFields({
   const [description, setDescription] = useState(task.description ?? '')
   const [taskType, setTaskType] = useState(task.task_type)
   const [dueDate, setDueDate] = useState(task.due_date ?? '')
+  const [startDate, setStartDate] = useState(task.start_date ?? '')
   const [confirming, setConfirming] = useState(false)
 
   function patchIfChanged(field: string, value: string, current: string) {
@@ -84,6 +85,11 @@ function TaskFields({
           <option key={m.external_id} value={m.external_id}>{m.name ?? m.external_id}</option>
         ))}
       </select>
+
+      <label htmlFor="td-start" style={labelStyle}>Inicio</label>
+      <input id="td-start" aria-label="inicio" type="date" value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+        onBlur={() => patchIfChanged('start_date', startDate, task.start_date ?? '')} style={fieldStyle} />
 
       <label htmlFor="td-due" style={labelStyle}>Fecha</label>
       <input id="td-due" aria-label="fecha" type="date" value={dueDate}

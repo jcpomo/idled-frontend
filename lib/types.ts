@@ -25,6 +25,7 @@ export interface Task {
   status: TaskStatus
   assignee: string | null
   due_date: string | null
+  start_date: string | null
   position: number
   description: string | null
   parent_id: string | null

@@ -43,13 +43,13 @@ export const listTasks = (token: string, projectId: string) =>
 export const createTask = (
   token: string,
   projectId: string,
-  input: { title: string; task_type?: string; status?: TaskStatus; assignee?: string | null; due_date?: string | null },
+  input: { title: string; task_type?: string; status?: TaskStatus; assignee?: string | null; due_date?: string | null; start_date?: string | null },
 ) => apiFetch<Task>(`/api/projects/${projectId}/tasks`, { method: 'POST', body: input, token })
 
 export const updateTask = (
   token: string,
   taskId: string,
-  patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string; status?: TaskStatus },
+  patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; start_date?: string | null; description?: string; status?: TaskStatus },
 ) => apiFetch<Task>(`/api/tasks/${taskId}`, { method: 'PATCH', body: patch, token })
 
 export const deleteTask = (token: string, taskId: string) =>

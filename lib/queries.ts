@@ -59,7 +59,7 @@ export function useUpdateTask(projectId: string) {
   return useMutation({
     mutationFn: (v: {
       taskId: string
-      patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; description?: string; status?: TaskStatus }
+      patch: { title?: string; task_type?: string; assignee?: string | null; due_date?: string | null; start_date?: string | null; description?: string; status?: TaskStatus }
       parentId?: string
     }) => api.updateTask(token(), v.taskId, v.patch),
     onSuccess: (_d, v) => {
