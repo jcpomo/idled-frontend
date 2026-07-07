@@ -1,6 +1,6 @@
-import Board from '@/components/kanban/Board'
 import TeamPanel from '@/components/kanban/TeamPanel'
 import TeamChatPanel from '@/components/kanban/TeamChatPanel'
+import ProjectView from '@/components/kanban/ProjectView'
 
 export default function ProjectPage({ params }: { params: { id: string } }) {
   return (
@@ -10,7 +10,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         <TeamChatPanel projectId={params.id} />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-        <Board projectId={params.id} />
+        <ProjectView projectId={params.id} />
       </div>
     </div>
   )
