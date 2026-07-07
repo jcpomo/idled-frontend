@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ChatMessage, DocumentItem, UserDir, Member, Notification } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification } from '@/lib/types'
 
 export class ApiError extends Error {
   status: number
@@ -86,7 +86,7 @@ export const listConversations = (token: string) =>
   apiFetch<Conversation[]>('/api/conversations', { token })
 
 export const listMessages = (token: string, conversationId: string) =>
-  apiFetch<ChatMessage[]>(`/api/conversations/${conversationId}/messages`, { token })
+  apiFetch<ConversationMessage[]>(`/api/conversations/${conversationId}/messages`, { token })
 
 export const listDocuments = (token: string) =>
   apiFetch<DocumentItem[]>('/api/documentos', { token })
@@ -111,3 +111,9 @@ export const markNotificationRead = (token: string, id: string) =>
 
 export const markAllNotificationsRead = (token: string) =>
   apiFetch<{ marked: number }>('/api/notifications/read-all', { method: 'POST', token })
+
+export const listGlobalMessages = (token: string) =>
+  apiFetch<ChatMessage[]>('/api/team-chat/global/messages', { token })
+
+export const listProjectMessages = (token: string, projectId: string) =>
+  apiFetch<ChatMessage[]>(`/api/team-chat/projects/${projectId}/messages`, { token })

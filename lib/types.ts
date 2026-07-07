@@ -47,10 +47,21 @@ export interface Conversation {
   created_at: string
 }
 
-export interface ChatMessage {
+export interface ConversationMessage {
   role: 'user' | 'assistant'
   content: string
   created_at: string
+}
+
+export interface ChatMessage {
+  id: string
+  scope: string
+  project_id: string | null
+  author_external_id: string
+  author_name: string
+  content: string
+  created_at: string
+  mine: boolean
 }
 
 export interface DocumentItem {
