@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from 'react'
 import { apiBase } from './api'
+import * as api from './api'
 import { getToken } from './auth'
 import type { ChatMessage } from './types'
 
@@ -58,5 +60,35 @@ export function openChatSocket(
       if (retryTimer) clearTimeout(retryTimer)
       ws?.close()
     },
+  }
+}
+
+export function useTeamChat(scope: 'global' | 'project', projectId?: string) {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [status, setStatus] = useState<ChatStatus>('connecting')
+  const sockRef = useRef<{ send: (c: string) => void; close: () => void } | null>(null)
+
+  useEffect(() => {
+    let active = true
+    const token = getToken() ?? ''
+    const load = scope === 'global'
+      ? api.listGlobalMessages(token)
+      : api.listProjectMessages(token, projectId as string)
+    load.then((history) => { if (active) setMessages(history) }).catch(() => { /* onAuthError global cubre 401 */ })
+
+    const sock = openChatSocket(scope, projectId ?? null, {
+      onMessage: (msg) => {
+        setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]))
+      },
+      onStatus: setStatus,
+    })
+    sockRef.current = sock
+    return () => { active = false; sock.close() }
+  }, [scope, projectId])
+
+  return {
+    messages,
+    status,
+    send: (content: string) => sockRef.current?.send(content),
   }
 }
