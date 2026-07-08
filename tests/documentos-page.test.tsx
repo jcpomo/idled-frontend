@@ -12,9 +12,11 @@ const docs: DocumentItem[] = [
 
 function stub(list: DocumentItem[]) {
   const mutate = vi.fn()
+  const del = vi.fn()
   vi.spyOn(queries, 'useDocuments').mockReturnValue({ data: list } as never)
   vi.spyOn(queries, 'useUploadDocument').mockReturnValue({ mutate, isPending: false } as never)
-  return { mutate }
+  vi.spyOn(queries, 'useDeleteDocument').mockReturnValue({ mutate: del, isPending: false } as never)
+  return { mutate, del }
 }
 
 it('lists documents with status and shows the error on a failed one', async () => {
@@ -42,4 +44,24 @@ it('uploads the chosen file', async () => {
   fireEvent.change(screen.getByLabelText('archivo'), { target: { files: [file] } })
   fireEvent.click(screen.getByLabelText('subir'))
   expect(mutate).toHaveBeenCalledWith(file, expect.anything())
+})
+
+it('deletes a document after a two-step confirm', async () => {
+  const { del } = stub(docs)
+  const { default: Page } = await import('@/app/(app)/documentos/page')
+  render(<Page />)
+  fireEvent.click(screen.getAllByLabelText('eliminar documento')[0])
+  expect(del).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByLabelText('confirmar borrado'))
+  expect(del).toHaveBeenCalledWith('d1', expect.anything())
+})
+
+it('cancels a delete without calling the mutation', async () => {
+  const { del } = stub(docs)
+  const { default: Page } = await import('@/app/(app)/documentos/page')
+  render(<Page />)
+  fireEvent.click(screen.getAllByLabelText('eliminar documento')[0])
+  fireEvent.click(screen.getByLabelText('cancelar borrado'))
+  expect(del).not.toHaveBeenCalled()
+  expect(screen.getAllByLabelText('eliminar documento')).toHaveLength(2)
 })

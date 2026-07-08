@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useState } from 'react'
-import { useDocuments, useUploadDocument } from '@/lib/queries'
+import { useDocuments, useUploadDocument, useDeleteDocument } from '@/lib/queries'
 
 const badgeColor: Record<string, string> = {
   uploaded: '#888',
@@ -12,8 +12,10 @@ const badgeColor: Record<string, string> = {
 export default function DocumentosPage() {
   const { data: documents, isError } = useDocuments()
   const upload = useUploadDocument()
+  const del = useDeleteDocument()
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
   function onUpload() {
     const file = inputRef.current?.files?.[0]
@@ -50,7 +52,27 @@ export default function DocumentosPage() {
               style={{ padding: 12, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontWeight: 600 }}>{d.filename}</span>
-                <span className="mono" style={{ fontSize: 11, color: badgeColor[d.status] ?? '#888' }}>{d.status}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="mono" style={{ fontSize: 11, color: badgeColor[d.status] ?? '#888' }}>{d.status}</span>
+                  {confirmingId === d.id ? (
+                    <>
+                      <button aria-label="confirmar borrado" disabled={del.isPending}
+                        onClick={() => del.mutate(d.id, { onSettled: () => setConfirmingId(null) })}
+                        style={{ padding: '4px 8px', background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>
+                        Confirmar
+                      </button>
+                      <button aria-label="cancelar borrado" disabled={del.isPending} onClick={() => setConfirmingId(null)}
+                        style={{ padding: '4px 8px', background: 'none', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button aria-label="eliminar documento" onClick={() => setConfirmingId(d.id)}
+                      style={{ padding: '4px 8px', background: 'none', color: 'var(--red)', border: '1px solid var(--red)', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>
+                      Eliminar
+                    </button>
+                  )}
+                </div>
               </div>
               <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>{d.created_at}</div>
               {d.status === 'failed' && d.error && (

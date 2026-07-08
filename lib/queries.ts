@@ -177,6 +177,14 @@ export function useUploadDocument() {
   })
 }
 
+export function useDeleteDocument() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.deleteDocument(token(), id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
+  })
+}
+
 export function useUsers() {
   return useQuery({
     queryKey: ['users'],

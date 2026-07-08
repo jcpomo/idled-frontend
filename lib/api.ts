@@ -91,6 +91,9 @@ export const listMessages = (token: string, conversationId: string) =>
 export const listDocuments = (token: string) =>
   apiFetch<DocumentItem[]>('/api/documentos', { token })
 
+export const deleteDocument = (token: string, id: string) =>
+  apiFetch<{ ok: boolean }>(`/api/documentos/${id}`, { method: 'DELETE', token })
+
 export const listUsers = (token: string) =>
   apiFetch<UserDir[]>('/api/users', { token })
 
