@@ -88,6 +88,9 @@ export const listConversations = (token: string) =>
 export const listMessages = (token: string, conversationId: string) =>
   apiFetch<ConversationMessage[]>(`/api/conversations/${conversationId}/messages`, { token })
 
+export const deleteConversation = (token: string, id: string) =>
+  apiFetch<{ ok: boolean }>(`/api/conversations/${id}`, { method: 'DELETE', token })
+
 export const listDocuments = (token: string) =>
   apiFetch<DocumentItem[]>('/api/documentos', { token })
 

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useConversations, useMessages } from '@/lib/queries'
+import { useConversations, useMessages, useDeleteConversation } from '@/lib/queries'
 import { streamChat } from '@/lib/chat'
 import { getToken, onAuthError } from '@/lib/auth'
 
@@ -22,7 +22,9 @@ function Bubble({ role, text }: { role: string; text: string }) {
 export default function AssistantPage() {
   const qc = useQueryClient()
   const { data: conversations } = useConversations()
+  const del = useDeleteConversation()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const { data: messages } = useMessages(selectedId ?? '')
   const [pending, setPending] = useState<{ user: string; assistant: string } | null>(null)
   const [input, setInput] = useState('')
@@ -63,17 +65,40 @@ export default function AssistantPage() {
           + Nueva
         </button>
         {(conversations ?? []).map((c) => (
-          <button key={c.id} data-testid="conversation-item" disabled={!!pending}
-            onClick={() => { setSelectedId(c.id); setPending(null); setError(null) }}
-            style={{
-              display: 'block', width: '100%', textAlign: 'left', padding: 8, marginBottom: 4,
-              background: c.id === selectedId ? 'var(--bg-3)' : 'none', color: 'var(--text)',
-              border: '1px solid var(--border)', borderRadius: 8, cursor: pending ? 'default' : 'pointer',
-              opacity: pending ? 0.5 : 1,
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13,
-            }}>
-            {c.title ?? '(sin título)'}
-          </button>
+          <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <button data-testid="conversation-item" disabled={!!pending}
+              onClick={() => { setSelectedId(c.id); setPending(null); setError(null) }}
+              style={{
+                flex: 1, textAlign: 'left', padding: 8, minWidth: 0,
+                background: c.id === selectedId ? 'var(--bg-3)' : 'none', color: 'var(--text)',
+                border: '1px solid var(--border)', borderRadius: 8, cursor: pending ? 'default' : 'pointer',
+                opacity: pending ? 0.5 : 1,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13,
+              }}>
+              {c.title ?? '(sin título)'}
+            </button>
+            {confirmingId === c.id ? (
+              <>
+                <button aria-label="confirmar borrado" disabled={del.isPending}
+                  onClick={() => {
+                    if (c.id === selectedId) setSelectedId(null)
+                    del.mutate(c.id, { onSettled: () => setConfirmingId(null) })
+                  }}
+                  style={{ padding: '4px 6px', background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>
+                  Sí
+                </button>
+                <button aria-label="cancelar borrado" disabled={del.isPending} onClick={() => setConfirmingId(null)}
+                  style={{ padding: '4px 6px', background: 'none', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>
+                  No
+                </button>
+              </>
+            ) : (
+              <button aria-label="eliminar conversación" disabled={!!pending} onClick={() => setConfirmingId(c.id)}
+                style={{ padding: '4px 8px', background: 'none', color: 'var(--red)', border: '1px solid var(--border)', borderRadius: 6, cursor: pending ? 'default' : 'pointer', fontSize: 11 }}>
+                ✕
+              </button>
+            )}
+          </div>
         ))}
       </div>
 

@@ -156,6 +156,14 @@ export function useMessages(conversationId: string) {
   })
 }
 
+export function useDeleteConversation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.deleteConversation(token(), id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['conversations'] }),
+  })
+}
+
 export function useDocuments() {
   return useQuery({
     queryKey: ['documents'],
