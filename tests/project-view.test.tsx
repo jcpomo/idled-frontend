@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 
 vi.mock('@/components/kanban/Board', () => ({ default: () => <div data-testid="board-view" /> }))
 vi.mock('@/components/kanban/TaskListView', () => ({ default: () => <div data-testid="list-view" /> }))
+vi.mock('@/components/kanban/GanttView', () => ({ default: () => <div data-testid="gantt-view" /> }))
 
 beforeEach(() => { vi.restoreAllMocks(); window.localStorage.clear() })
 
@@ -27,4 +28,20 @@ it('starts in the list view when localStorage says so', async () => {
   const { default: ProjectView } = await import('@/components/kanban/ProjectView')
   render(<ProjectView projectId="p1" />)
   expect(screen.getByTestId('list-view')).toBeInTheDocument()
+})
+
+it('switches to the gantt view and persists the choice', async () => {
+  const { default: ProjectView } = await import('@/components/kanban/ProjectView')
+  render(<ProjectView projectId="p1" />)
+  fireEvent.click(screen.getByTestId('view-toggle-gantt'))
+  expect(screen.getByTestId('gantt-view')).toBeInTheDocument()
+  expect(screen.queryByTestId('board-view')).not.toBeInTheDocument()
+  expect(window.localStorage.getItem('idled_project_view')).toBe('gantt')
+})
+
+it('starts in the gantt view when localStorage says so', async () => {
+  window.localStorage.setItem('idled_project_view', 'gantt')
+  const { default: ProjectView } = await import('@/components/kanban/ProjectView')
+  render(<ProjectView projectId="p1" />)
+  expect(screen.getByTestId('gantt-view')).toBeInTheDocument()
 })

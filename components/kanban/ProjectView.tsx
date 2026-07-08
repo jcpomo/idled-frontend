@@ -2,13 +2,15 @@
 import { useState } from 'react'
 import Board from './Board'
 import TaskListView from './TaskListView'
+import GanttView from './GanttView'
 
 const VIEW_KEY = 'idled_project_view'
-type View = 'board' | 'list'
+type View = 'board' | 'list' | 'gantt'
 
 function initialView(): View {
   if (typeof window === 'undefined') return 'board'
-  return window.localStorage.getItem(VIEW_KEY) === 'list' ? 'list' : 'board'
+  const v = window.localStorage.getItem(VIEW_KEY)
+  return v === 'list' || v === 'gantt' ? v : 'board'
 }
 
 const btn = (active: boolean) => ({
@@ -30,10 +32,14 @@ export default function ProjectView({ projectId }: { projectId: string }) {
         <button data-testid="view-toggle-board" aria-pressed={view === 'board'} onClick={() => choose('board')}
           style={{ ...btn(view === 'board'), borderRadius: '8px 0 0 8px' }}>Tablero</button>
         <button data-testid="view-toggle-list" aria-pressed={view === 'list'} onClick={() => choose('list')}
-          style={{ ...btn(view === 'list'), borderRadius: '0 8px 8px 0', borderLeft: 'none' }}>Lista</button>
+          style={{ ...btn(view === 'list'), borderLeft: 'none' }}>Lista</button>
+        <button data-testid="view-toggle-gantt" aria-pressed={view === 'gantt'} onClick={() => choose('gantt')}
+          style={{ ...btn(view === 'gantt'), borderRadius: '0 8px 8px 0', borderLeft: 'none' }}>Gantt</button>
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-        {view === 'board' ? <Board projectId={projectId} /> : <TaskListView projectId={projectId} />}
+        {view === 'board' ? <Board projectId={projectId} />
+          : view === 'list' ? <TaskListView projectId={projectId} />
+          : <GanttView projectId={projectId} />}
       </div>
     </div>
   )
