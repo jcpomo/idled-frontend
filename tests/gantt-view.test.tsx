@@ -13,7 +13,7 @@ vi.mock('@/components/kanban/TaskDetailPanel', () => ({
 class FakePointerEvent extends MouseEvent {}
 ;(globalThis as unknown as { PointerEvent: typeof MouseEvent }).PointerEvent = FakePointerEvent
 
-beforeEach(() => vi.restoreAllMocks())
+beforeEach(() => { vi.restoreAllMocks(); mutate.mockClear() })
 
 const task = (over: Partial<Task>): Task => ({
   id: 'x', title: 't', task_type: 'PPTO', status: 'open', assignee: null,
