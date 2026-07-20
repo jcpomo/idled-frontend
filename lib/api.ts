@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification, SearchResult } from '@/lib/types'
 
 export class ApiError extends Error {
   status: number
@@ -123,3 +123,6 @@ export const listGlobalMessages = (token: string) =>
 
 export const listProjectMessages = (token: string, projectId: string) =>
   apiFetch<ChatMessage[]>(`/api/team-chat/projects/${projectId}/messages`, { token })
+
+export const searchAll = (token: string, q: string) =>
+  apiFetch<SearchResult>(`/api/search?q=${encodeURIComponent(q)}`, { token })
