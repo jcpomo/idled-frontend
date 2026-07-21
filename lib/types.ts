@@ -5,6 +5,7 @@ export interface Project {
   name: string
   color?: string
   task_count?: number
+  done_count?: number
   created_at?: string | null
   is_owner?: boolean
 }
@@ -102,4 +103,15 @@ export interface SearchTask {
 export interface SearchResult {
   projects: SearchProject[]
   tasks: SearchTask[]
+}
+
+export interface MyTask {
+  id: string
+  title: string
+  project_id: string
+  project_name: string
+  status: string
+  due_date: string | null
+  subtask_done: number
+  subtask_total: number
 }
