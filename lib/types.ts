@@ -3,6 +3,8 @@ export type TaskStatus = 'open' | 'progress' | 'review' | 'done'
 export interface Project {
   id: string
   name: string
+  color?: string
+  task_count?: number
   created_at?: string | null
   is_owner?: boolean
 }
@@ -81,4 +83,23 @@ export interface Notification {
   project_id: string | null
   read: boolean
   created_at: string
+}
+
+export interface SearchProject {
+  id: string
+  name: string
+  color: string
+}
+
+export interface SearchTask {
+  id: string
+  title: string
+  project_id: string
+  project_name: string
+  status: string
+}
+
+export interface SearchResult {
+  projects: SearchProject[]
+  tasks: SearchTask[]
 }

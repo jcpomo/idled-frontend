@@ -249,3 +249,13 @@ export function useMarkAllNotificationsRead() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
   })
 }
+
+export function useSearch(q: string) {
+  const trimmed = q.trim()
+  return useQuery({
+    queryKey: ['search', trimmed],
+    queryFn: () => api.searchAll(token(), trimmed),
+    enabled: Boolean(getToken()) && trimmed.length >= 2,
+    staleTime: 10000,
+  })
+}
