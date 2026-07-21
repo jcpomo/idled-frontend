@@ -115,3 +115,11 @@ export interface MyTask {
   subtask_done: number
   subtask_total: number
 }
+
+export interface TaskType {
+  id: string
+  name: string
+  color: string
+  subtasks: string[]
+  position: number
+}
