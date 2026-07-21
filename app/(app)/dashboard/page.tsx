@@ -6,6 +6,8 @@ import { greeting, taskStats } from '@/lib/dashboard'
 import { todayISO } from '@/lib/dates'
 import MyTasksCard from '@/components/dashboard/MyTasksCard'
 import ProjectCard from '@/components/dashboard/ProjectCard'
+import QuickCreateCard from '@/components/dashboard/QuickCreateCard'
+import TaskTypesManager from '@/components/dashboard/TaskTypesManager'
 import type { MyTask } from '@/lib/types'
 
 export default function Dashboard() {
@@ -31,9 +33,12 @@ export default function Dashboard() {
         {' '}y <span style={{ color: 'var(--red)', fontWeight: 600 }}>{stats.overdue} atrasada{stats.overdue === 1 ? '' : 's'}</span>.
       </div>
 
-      <div style={{ marginBottom: 22 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.5fr) minmax(0,1fr)', gap: 20, marginBottom: 22 }}>
+        <QuickCreateCard />
         <MyTasksCard />
       </div>
+
+      <TaskTypesManager />
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Proyectos</span>
