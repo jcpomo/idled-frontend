@@ -1,37 +1,43 @@
-import { it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
-import * as queries from '@/lib/queries'
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
-beforeEach(() => vi.restoreAllMocks())
+vi.mock('@/lib/dates', async (orig) => ({ ...(await orig() as object), todayISO: () => '2026-07-21' }))
+vi.mock('@/lib/auth', async (orig) => ({ ...(await orig() as object),
+  getToken: () => 'h.p.s', decodeToken: () => ({ sub: 'ed', name: 'Edwin', role: 'admin' }) }))
+vi.mock('@/lib/queries', () => ({
+  useMyTasks: () => ({ data: [
+    { id: '1', title: 'Hoy', project_id: 'p1', project_name: 'P', status: 'open', due_date: '2026-07-21', subtask_done: 0, subtask_total: 0 },
+    { id: '2', title: 'Vieja', project_id: 'p1', project_name: 'P', status: 'open', due_date: '2026-07-01', subtask_done: 0, subtask_total: 0 },
+  ], isError: false }),
+  useProjects: () => ({ data: [
+    { id: 'p1', name: 'Serie X', color: '#FF7F24', task_count: 4, done_count: 1 },
+    { id: 'p2', name: 'Ajeno', color: '#FAC51C', task_count: 0, done_count: 0, is_owner: false },
+  ], isLoading: false }),
+  useCreateProject: () => ({ mutate: vi.fn(), isPending: false }),
+}))
 
-function wrap(ui: React.ReactElement) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>)
+import Dashboard from '@/app/(app)/dashboard/page'
+
+function renderPage() {
+  const qc = new QueryClient()
+  return render(<QueryClientProvider client={qc}><Dashboard /></QueryClientProvider>)
 }
 
-it('lists projects from the hook', async () => {
-  vi.spyOn(queries, 'useProjects').mockReturnValue({ data: [{ id: 'p1', name: 'Serie X' }], isLoading: false } as any)
-  vi.spyOn(queries, 'useCreateProject').mockReturnValue({ mutate: vi.fn(), isPending: false } as any)
-  const { default: Dashboard } = await import('@/app/(app)/dashboard/page')
-  wrap(<Dashboard />)
-  expect(await screen.findByText('Serie X')).toBeInTheDocument()
-})
-
-it('labels shared projects (is_owner false)', async () => {
-  vi.spyOn(queries, 'useProjects').mockReturnValue({
-    data: [
-      { id: 'p1', name: 'Mío' },
-      { id: 'p2', name: 'Ajeno', is_owner: false },
-    ],
-    isLoading: false,
-  } as never)
-  vi.spyOn(queries, 'useCreateProject').mockReturnValue({ mutate: vi.fn(), isPending: false } as never)
-  const { default: Dashboard } = await import('@/app/(app)/dashboard/page')
-  wrap(<Dashboard />)
-  expect(await screen.findByText('Ajeno')).toBeInTheDocument()
-  // only the shared project (is_owner === false) is labelled; the owned one is not
-  expect(screen.getAllByText('compartido')).toHaveLength(1)
+describe('Dashboard', () => {
+  it('saluda por nombre y muestra stats hoy/atrasadas', () => {
+    renderPage()
+    expect(screen.getByText(/Edwin/)).toBeTruthy()
+    expect(screen.getByText(/1 tarea/)).toBeTruthy()
+    expect(screen.getByText(/1 atrasada/)).toBeTruthy()
+  })
+  it('muestra tarjetas de proyecto con progreso y etiqueta compartido', () => {
+    renderPage()
+    expect(screen.getByText('Serie X')).toBeTruthy()
+    expect(screen.getByText('25%')).toBeTruthy()
+    expect(screen.getByText('Ajeno')).toBeTruthy()
+    expect(screen.getAllByText('compartido')).toHaveLength(1)
+  })
 })

@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification, SearchResult } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification, SearchResult, MyTask } from '@/lib/types'
 
 export class ApiError extends Error {
   status: number
@@ -126,3 +126,6 @@ export const listProjectMessages = (token: string, projectId: string) =>
 
 export const searchAll = (token: string, q: string) =>
   apiFetch<SearchResult>(`/api/search?q=${encodeURIComponent(q)}`, { token })
+
+export const listMyTasks = (token: string) =>
+  apiFetch<MyTask[]>('/api/tasks/mine', { token })

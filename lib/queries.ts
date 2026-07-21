@@ -259,3 +259,11 @@ export function useSearch(q: string) {
     staleTime: 10000,
   })
 }
+
+export function useMyTasks() {
+  return useQuery({
+    queryKey: ['my-tasks'],
+    queryFn: () => api.listMyTasks(token()),
+    enabled: Boolean(getToken()),
+  })
+}
