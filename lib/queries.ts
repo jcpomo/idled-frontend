@@ -267,3 +267,44 @@ export function useMyTasks() {
     enabled: Boolean(getToken()),
   })
 }
+
+export function useTaskTypes() {
+  return useQuery({
+    queryKey: ['task-types'],
+    queryFn: () => api.listTaskTypes(token()),
+    enabled: Boolean(getToken()),
+  })
+}
+export function useCreateTaskType() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { name: string; color: string; subtasks: string[] }) => api.createTaskType(token(), input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['task-types'] }),
+  })
+}
+export function useUpdateTaskType() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { id: string; patch: { name?: string; color?: string; subtasks?: string[] } }) => api.updateTaskType(token(), v.id, v.patch),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['task-types'] }),
+  })
+}
+export function useDeleteTaskType() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.deleteTaskType(token(), id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['task-types'] }),
+  })
+}
+export function useQuickCreateTask() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { projectId: string; title: string; task_type: string; subtasks?: string[] }) =>
+      api.createTask(token(), v.projectId, { title: v.title, task_type: v.task_type, subtasks: v.subtasks }),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['tasks', v.projectId] })
+      qc.invalidateQueries({ queryKey: ['projects'] })
+      qc.invalidateQueries({ queryKey: ['my-tasks'] })
+    },
+  })
+}

@@ -17,6 +17,11 @@ vi.mock('@/lib/queries', () => ({
     { id: 'p2', name: 'Ajeno', color: '#FAC51C', task_count: 0, done_count: 0, is_owner: false },
   ], isLoading: false }),
   useCreateProject: () => ({ mutate: vi.fn(), isPending: false }),
+  useTaskTypes: () => ({ data: [{ id: 't1', name: 'PPTO', color: '#FAC51C', subtasks: ['BOM'], position: 0 }], isError: false }),
+  useQuickCreateTask: () => ({ mutate: vi.fn(), isPending: false }),
+  useCreateTaskType: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpdateTaskType: () => ({ mutate: vi.fn(), isPending: false }),
+  useDeleteTaskType: () => ({ mutate: vi.fn(), isPending: false }),
 }))
 
 import Dashboard from '@/app/(app)/dashboard/page'
@@ -35,9 +40,14 @@ describe('Dashboard', () => {
   })
   it('muestra tarjetas de proyecto con progreso y etiqueta compartido', () => {
     renderPage()
-    expect(screen.getByText('Serie X')).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Serie X/ })).toBeTruthy()
     expect(screen.getByText('25%')).toBeTruthy()
-    expect(screen.getByText('Ajeno')).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Ajeno/ })).toBeTruthy()
     expect(screen.getAllByText('compartido')).toHaveLength(1)
+  })
+  it('muestra crear tarea rápida y el gestor de tipos', () => {
+    renderPage()
+    expect(screen.getByText('Crear tarea rápida')).toBeTruthy()
+    expect(screen.getByText('Tipos de tarea y plantillas de subtareas')).toBeTruthy()
   })
 })

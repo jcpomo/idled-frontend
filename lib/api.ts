@@ -1,4 +1,4 @@
-import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification, SearchResult, MyTask } from '@/lib/types'
+import type { Project, Task, TaskStatus, TaskComment, Conversation, ConversationMessage, ChatMessage, DocumentItem, UserDir, Member, Notification, SearchResult, MyTask, TaskType } from '@/lib/types'
 
 export class ApiError extends Error {
   status: number
@@ -43,7 +43,7 @@ export const listTasks = (token: string, projectId: string) =>
 export const createTask = (
   token: string,
   projectId: string,
-  input: { title: string; task_type?: string; status?: TaskStatus; assignee?: string | null; due_date?: string | null; start_date?: string | null },
+  input: { title: string; task_type?: string; status?: TaskStatus; assignee?: string | null; due_date?: string | null; start_date?: string | null; subtasks?: string[] },
 ) => apiFetch<Task>(`/api/projects/${projectId}/tasks`, { method: 'POST', body: input, token })
 
 export const updateTask = (
@@ -129,3 +129,12 @@ export const searchAll = (token: string, q: string) =>
 
 export const listMyTasks = (token: string) =>
   apiFetch<MyTask[]>('/api/tasks/mine', { token })
+
+export const listTaskTypes = (token: string) =>
+  apiFetch<TaskType[]>('/api/task-types', { token })
+export const createTaskType = (token: string, input: { name: string; color: string; subtasks: string[] }) =>
+  apiFetch<TaskType>('/api/task-types', { method: 'POST', body: input, token })
+export const updateTaskType = (token: string, id: string, patch: { name?: string; color?: string; subtasks?: string[] }) =>
+  apiFetch<TaskType>(`/api/task-types/${id}`, { method: 'PATCH', body: patch, token })
+export const deleteTaskType = (token: string, id: string) =>
+  apiFetch<{ deleted: boolean }>(`/api/task-types/${id}`, { method: 'DELETE', token })
