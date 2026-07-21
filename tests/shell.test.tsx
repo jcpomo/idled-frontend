@@ -11,6 +11,7 @@ beforeEach(() => { pushMock.mockClear(); vi.restoreAllMocks() })
 it('renders the sidebar nav when authenticated', async () => {
   vi.spyOn(auth, 'getToken').mockReturnValue('tok')
   vi.spyOn(queries, 'useNotifications').mockReturnValue({ data: [] } as never)
+  vi.spyOn(queries, 'useProjects').mockReturnValue({ data: [] } as never)
   const { default: Sidebar } = await import('@/components/Sidebar')
   render(<Sidebar />)
   expect(screen.getByText('Dashboard')).toBeInTheDocument()
@@ -20,6 +21,7 @@ it('renders the sidebar nav when authenticated', async () => {
 it('the logout button calls logout', async () => {
   vi.spyOn(auth, 'getToken').mockReturnValue('tok')
   vi.spyOn(queries, 'useNotifications').mockReturnValue({ data: [] } as never)
+  vi.spyOn(queries, 'useProjects').mockReturnValue({ data: [] } as never)
   const logoutSpy = vi.spyOn(auth, 'logout').mockImplementation(() => {})
   const { default: Sidebar } = await import('@/components/Sidebar')
   render(<Sidebar />)
@@ -33,6 +35,7 @@ it('shows an unread badge and a Notificaciones link', async () => {
     { id: 'n1', type: 'assigned', message: 'x', task_id: null, project_id: null, read: false, created_at: '' },
     { id: 'n2', type: 'shared', message: 'y', task_id: null, project_id: null, read: false, created_at: '' },
   ] } as never)
+  vi.spyOn(queries, 'useProjects').mockReturnValue({ data: [] } as never)
   const { default: Sidebar } = await import('@/components/Sidebar')
   render(<Sidebar />)
   const link = screen.getByRole('link', { name: /Notificaciones/ })
@@ -43,6 +46,7 @@ it('shows an unread badge and a Notificaciones link', async () => {
 it('shows a Chat de equipo link', async () => {
   vi.spyOn(auth, 'getToken').mockReturnValue('tok')
   vi.spyOn(queries, 'useNotifications').mockReturnValue({ data: [] } as never)
+  vi.spyOn(queries, 'useProjects').mockReturnValue({ data: [] } as never)
   const { default: Sidebar } = await import('@/components/Sidebar')
   render(<Sidebar />)
   const link = screen.getByRole('link', { name: 'Chat de equipo' })
